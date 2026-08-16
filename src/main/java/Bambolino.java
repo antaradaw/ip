@@ -11,14 +11,31 @@ public class Bambolino {
         System.out.println(banner);
         System.out.println("Hello! I'm Bambolino.\n" +
                 "What can I do for you?");
-        String userInput="";
+        String userInput;
+        String[] tasks = new String[100];
+        int taskCount = 0;
         while (true){
             userInput = sc.nextLine();
+
             if (userInput.equalsIgnoreCase("Bye")){
                 System.out.println("Bye. Hope to see you again soon!");
                 break;
             }
-            System.out.println(userInput);
+
+            if (userInput.equalsIgnoreCase("List")) {
+                if (taskCount == 0){
+                    System.out.println("No tasks added yet.");
+                } else {
+                    for (int i = 0; i < taskCount; i++) {
+                        System.out.println((i + 1) + ". " + tasks[i]);
+                    }
+                }
+            }else{
+                System.out.println("added:" + userInput);
+                tasks[taskCount] = userInput;
+                taskCount++;
+            }
+
         }
     }
 }
