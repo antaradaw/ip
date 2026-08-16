@@ -6,5 +6,8 @@ public class Bambolino {
                 + "| |_) | (_| | | | | | | |_) | (_) | | | | | | (_) |\n"
                 + "|____/ \\__,_|_| |_| |_|_.__/ \\___/|_|_|_| |_|\\___/ \n";
         System.out.println(banner);
+        System.out.println("Hello! I'm Bambolino.\n" +
+                "What can I do for you?");
+        System.out.println("Bye. Hope to see you again soon!");
     }
 }
