@@ -44,6 +44,26 @@ public class Bambolino {
                     }
                     System.out.println(DIVIDER);
                 }
+            } else if (userInput.startsWith("todo ")) {
+                tasks[taskCount] = new Todo(userInput.substring(5));
+                taskCount++;
+                printTaskAdded(tasks[taskCount - 1], taskCount);
+            } else if (userInput.startsWith("deadline ")) {
+                int byIndex = userInput.indexOf(" /by ");
+                String description = userInput.substring(9, byIndex);
+                String by = userInput.substring(byIndex + 5);
+                tasks[taskCount] = new Deadline(description, by);
+                taskCount++;
+                printTaskAdded(tasks[taskCount - 1], taskCount);
+            } else if (userInput.startsWith("event ")) {
+                int fromIndex = userInput.indexOf(" /from ");
+                int toIndex = userInput.indexOf(" /to ");
+                String description = userInput.substring(6, fromIndex);
+                String from = userInput.substring(fromIndex + 7, toIndex);
+                String to = userInput.substring(toIndex + 5);
+                tasks[taskCount] = new Event(description, from, to);
+                taskCount++;
+                printTaskAdded(tasks[taskCount - 1], taskCount);
             } else if (userInput.startsWith("mark ")) {
                 int taskNumber = Integer.parseInt(userInput.substring(5));
                 Task task = tasks[taskNumber - 1];
@@ -67,5 +87,19 @@ public class Bambolino {
             }
 
         }
+    }
+
+    /**
+     * Prints the confirmation shown after adding a task.
+     *
+     * @param task the task that was added
+     * @param taskCount the number of tasks now in the list
+     */
+    private static void printTaskAdded(Task task, int taskCount) {
+        System.out.println(DIVIDER);
+        System.out.println("Got it. I've added this task:");
+        System.out.println("  " + task);
+        System.out.println("Now you have " + taskCount + " tasks in the list.");
+        System.out.println(DIVIDER);
     }
 }
