@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -24,7 +25,8 @@ public class Bambolino {
         System.out.println(banner);
         System.out.println("Hello! I'm Bambolino.\n" +
                 "What can I do for you?");
-        List<Task> tasks = new ArrayList<>();
+        Storage storage = new Storage();
+        List<Task> tasks = loadTasks(storage);
         while (true) {
             String userInput = sc.nextLine().trim();
 
@@ -34,7 +36,7 @@ public class Bambolino {
             }
 
             try {
-                processCommand(userInput, tasks);
+                processCommand(userInput, tasks, storage);
             } catch (BambolinoException error) {
                 printError(error);
             }
@@ -48,7 +50,7 @@ public class Bambolino {
      * @param tasks the task list
      * @throws BambolinoException if the command or its arguments are invalid
      */
-    private static void processCommand(String userInput, List<Task> tasks)
+    private static void processCommand(String userInput, List<Task> tasks, Storage storage)
             throws BambolinoException {
         if (userInput.isEmpty()) {
             throw new BambolinoException("please enter a command.");
@@ -68,22 +70,26 @@ public class Bambolino {
                 throw new BambolinoException("a todo needs a description. Try: todo borrow book");
             }
             tasks.add(new Todo(arguments));
+            saveTasks(storage, tasks);
             printTaskAdded(tasks.getLast(), tasks.size());
         } else if (command.equals("deadline")) {
-            addDeadline(arguments, tasks);
+            addDeadline(arguments, tasks, storage);
         } else if (command.equals("event")) {
-            addEvent(arguments, tasks);
+            addEvent(arguments, tasks, storage);
         } else if (command.equals("mark")) {
             Task taskToMark = getTask(arguments, tasks, "mark");
             taskToMark.markAsDone();
+            saveTasks(storage, tasks);
             printMarkedTask(taskToMark, true);
         } else if (command.equals("unmark")) {
             Task taskToUnmark = getTask(arguments, tasks, "unmark");
             taskToUnmark.unmarkAsDone();
+            saveTasks(storage, tasks);
             printMarkedTask(taskToUnmark, false);
         } else if (command.equals("delete")) {
             int taskIndex = getTaskIndex(arguments, tasks, "delete");
             Task deletedTask = tasks.remove(taskIndex);
+            saveTasks(storage, tasks);
             printDeletedTask(deletedTask, tasks.size());
         } else {
             throw new BambolinoException("I don't recognise that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.");
@@ -91,7 +97,7 @@ public class Bambolino {
     }
 
     /** Adds a deadline task after validating its description and deadline text. */
-    private static void addDeadline(String arguments, List<Task> tasks)
+    private static void addDeadline(String arguments, List<Task> tasks, Storage storage)
             throws BambolinoException {
         int byIndex = arguments.startsWith("/by ") ? 0 : arguments.indexOf(" /by ");
         if (byIndex < 0) {
@@ -103,11 +109,12 @@ public class Bambolino {
             throw new BambolinoException("a deadline needs both a description and text after /by.");
         }
         tasks.add(new Deadline(description, by));
+        saveTasks(storage, tasks);
         printTaskAdded(tasks.getLast(), tasks.size());
     }
 
     /** Adds an event task after validating its description, start, and end text. */
-    private static void addEvent(String arguments, List<Task> tasks)
+    private static void addEvent(String arguments, List<Task> tasks, Storage storage)
             throws BambolinoException {
         int fromIndex = arguments.indexOf(" /from ");
         int toIndex = arguments.indexOf(" /to ");
@@ -121,6 +128,7 @@ public class Bambolino {
             throw new BambolinoException("an event needs a description, a start after /from, and an end after /to.");
         }
         tasks.add(new Event(description, from, to));
+        saveTasks(storage, tasks);
         printTaskAdded(tasks.getLast(), tasks.size());
     }
 
@@ -185,6 +193,25 @@ public class Bambolino {
         System.out.println(DIVIDER);
         System.out.println("Sorry, " + error.getMessage());
         System.out.println(DIVIDER);
+    }
+
+    /** Loads saved tasks while allowing the chatbot to start if storage fails. */
+    private static List<Task> loadTasks(Storage storage) {
+        try {
+            return storage.load();
+        } catch (IOException error) {
+            System.out.println("Warning: I couldn't load your saved tasks. Starting with an empty list.");
+            return new ArrayList<>();
+        }
+    }
+
+    /** Saves task changes and reports a storage problem without ending the chatbot. */
+    private static void saveTasks(Storage storage, List<Task> tasks) throws BambolinoException {
+        try {
+            storage.save(tasks);
+        } catch (IOException error) {
+            throw new BambolinoException("I couldn't save your tasks. Please check the data folder.");
+        }
     }
 
     /**
