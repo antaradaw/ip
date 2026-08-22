@@ -16,6 +16,7 @@ SESSION_PATH = PROJECT_ROOT / "test/ui-test-session.md"
 CLASS_DIRECTORY = PROJECT_ROOT / "test/.ui-test-classes"
 DATA_DIRECTORY = PROJECT_ROOT / "data"
 STARTUP_PROMPT = "What can I do for you?\n"
+MAIN_CLASS = "bambolino.Bambolino"
 
 
 @dataclass
@@ -66,7 +67,7 @@ def run_case(case: TestCase) -> tuple[str, str]:
     """Run one case and return output for comparison and the full console output."""
     shutil.rmtree(DATA_DIRECTORY, ignore_errors=True)
     result = subprocess.run(
-        ["java", "-cp", str(CLASS_DIRECTORY), "Bambolino"],
+        ["java", "-cp", str(CLASS_DIRECTORY), MAIN_CLASS],
         input=case.inputs + "\n",
         capture_output=True,
         text=True,

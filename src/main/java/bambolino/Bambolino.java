@@ -1,46 +1,44 @@
+package bambolino;
+
+import bambolino.exception.BambolinoException;
+import bambolino.storage.Storage;
+import bambolino.task.Deadline;
+import bambolino.task.Event;
+import bambolino.task.Task;
+import bambolino.task.Todo;
+import bambolino.ui.Ui;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * A command-line task list application.
  */
 public class Bambolino {
-    /** The line used to separate Bambolino's responses. */
-    private static final String DIVIDER = "____________________________________________________________";
-
     /**
      * Starts Bambolino and processes commands until the user says goodbye.
      *
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        String banner = " ____                  _           _ _             \n"
-                + "| __ )  __ _ _ __ ___ | |__   ___ | (_)_ __   ___  \n"
-                + "|  _ \\ / _` | '_ ` _ \\| '_ \\ / _ \\| | | '_ \\ / _ \\ \n"
-                + "| |_) | (_| | | | | | | |_) | (_) | | | | | | (_) |\n"
-                + "|____/ \\__,_|_| |_| |_|_.__/ \\___/|_|_|_| |_|\\___/ \n";
-        System.out.println(banner);
-        System.out.println("Hello! I'm Bambolino.\n" +
-                "What can I do for you?");
+        Ui ui = new Ui();
+        ui.showWelcome();
         Storage storage = new Storage();
-        List<Task> tasks = loadTasks(storage);
+        List<Task> tasks = loadTasks(storage, ui);
         while (true) {
-            String userInput = sc.nextLine().trim();
+            String userInput = ui.readCommand();
 
             if (userInput.equalsIgnoreCase("bye")) {
-                System.out.println("Bye. Hope to see you again soon!");
+                ui.showGoodbye();
                 break;
             }
 
             try {
-                processCommand(userInput, tasks, storage);
+                processCommand(userInput, tasks, storage, ui);
             } catch (BambolinoException error) {
-                printError(error);
+                ui.showError(error.getMessage());
             }
         }
     }
@@ -52,7 +50,7 @@ public class Bambolino {
      * @param tasks the task list
      * @throws BambolinoException if the command or its arguments are invalid
      */
-    private static void processCommand(String userInput, List<Task> tasks, Storage storage)
+    private static void processCommand(String userInput, List<Task> tasks, Storage storage, Ui ui)
             throws BambolinoException {
         if (userInput.isEmpty()) {
             throw new BambolinoException("please enter a command.");
@@ -66,33 +64,33 @@ public class Bambolino {
             if (!arguments.isEmpty()) {
                 throw new BambolinoException("the list command does not take any extra words.");
             }
-            printTaskList(tasks);
+            ui.showTaskList(tasks);
         } else if (command.equals("todo")) {
             if (arguments.isEmpty()) {
                 throw new BambolinoException("a todo needs a description. Try: todo borrow book");
             }
             tasks.add(new Todo(arguments));
             saveTasks(storage, tasks);
-            printTaskAdded(tasks.getLast(), tasks.size());
+            ui.showTaskAdded(tasks.getLast(), tasks.size());
         } else if (command.equals("deadline")) {
-            addDeadline(arguments, tasks, storage);
+            addDeadline(arguments, tasks, storage, ui);
         } else if (command.equals("event")) {
-            addEvent(arguments, tasks, storage);
+            addEvent(arguments, tasks, storage, ui);
         } else if (command.equals("mark")) {
             Task taskToMark = getTask(arguments, tasks, "mark");
             taskToMark.markAsDone();
             saveTasks(storage, tasks);
-            printMarkedTask(taskToMark, true);
+            ui.showMarkedTask(taskToMark, true);
         } else if (command.equals("unmark")) {
             Task taskToUnmark = getTask(arguments, tasks, "unmark");
             taskToUnmark.unmarkAsDone();
             saveTasks(storage, tasks);
-            printMarkedTask(taskToUnmark, false);
+            ui.showMarkedTask(taskToUnmark, false);
         } else if (command.equals("delete")) {
             int taskIndex = getTaskIndex(arguments, tasks, "delete");
             Task deletedTask = tasks.remove(taskIndex);
             saveTasks(storage, tasks);
-            printDeletedTask(deletedTask, tasks.size());
+            ui.showDeletedTask(deletedTask, tasks.size());
         } else {
             throw new BambolinoException("I don't recognise that command. Try todo, deadline, event, list, "
                     + "mark, unmark, delete, or bye.");
@@ -100,7 +98,7 @@ public class Bambolino {
     }
 
     /** Adds a deadline task after validating its description and date. */
-    private static void addDeadline(String arguments, List<Task> tasks, Storage storage)
+    private static void addDeadline(String arguments, List<Task> tasks, Storage storage, Ui ui)
             throws BambolinoException {
         int byIndex = arguments.startsWith("/by ") ? 0 : arguments.indexOf(" /by ");
         if (byIndex < 0) {
@@ -121,11 +119,11 @@ public class Bambolino {
         }
         tasks.add(new Deadline(description, dueDate));
         saveTasks(storage, tasks);
-        printTaskAdded(tasks.getLast(), tasks.size());
+        ui.showTaskAdded(tasks.getLast(), tasks.size());
     }
 
     /** Adds an event task after validating its description, start, and end text. */
-    private static void addEvent(String arguments, List<Task> tasks, Storage storage)
+    private static void addEvent(String arguments, List<Task> tasks, Storage storage, Ui ui)
             throws BambolinoException {
         int fromIndex = arguments.indexOf(" /from ");
         int toIndex = arguments.indexOf(" /to ");
@@ -140,7 +138,7 @@ public class Bambolino {
         }
         tasks.add(new Event(description, from, to));
         saveTasks(storage, tasks);
-        printTaskAdded(tasks.getLast(), tasks.size());
+        ui.showTaskAdded(tasks.getLast(), tasks.size());
     }
 
     /** Finds a valid task selected by a command. */
@@ -167,51 +165,12 @@ public class Bambolino {
         return taskNumber - 1;
     }
 
-    /** Prints the current task list. */
-    private static void printTaskList(List<Task> tasks) {
-        if (tasks.isEmpty()) {
-            System.out.println("No tasks added yet.");
-            return;
-        }
-        System.out.println(DIVIDER);
-        System.out.println("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + "." + tasks.get(i));
-        }
-        System.out.println(DIVIDER);
-    }
-
-    /** Prints the confirmation shown after marking or unmarking a task. */
-    private static void printMarkedTask(Task task, boolean isDone) {
-        System.out.println(DIVIDER);
-        System.out.println(isDone ? "Nice! I've marked this task as done:"
-                : "OK, I've marked this task as not done yet:");
-        System.out.println("  " + task);
-        System.out.println(DIVIDER);
-    }
-
-    /** Prints the confirmation shown after deleting a task. */
-    private static void printDeletedTask(Task task, int taskCount) {
-        System.out.println(DIVIDER);
-        System.out.println("Noted. I've removed this task:");
-        System.out.println("  " + task);
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
-        System.out.println(DIVIDER);
-    }
-
-    /** Prints a user-friendly command error. */
-    private static void printError(BambolinoException error) {
-        System.out.println(DIVIDER);
-        System.out.println("Sorry, " + error.getMessage());
-        System.out.println(DIVIDER);
-    }
-
     /** Loads saved tasks while allowing the chatbot to start if storage fails. */
-    private static List<Task> loadTasks(Storage storage) {
+    private static List<Task> loadTasks(Storage storage, Ui ui) {
         try {
             return storage.load();
         } catch (IOException error) {
-            System.out.println("Warning: I couldn't load your saved tasks. Starting with an empty list.");
+            ui.showLoadingError();
             return new ArrayList<>();
         }
     }
@@ -225,17 +184,4 @@ public class Bambolino {
         }
     }
 
-    /**
-     * Prints the confirmation shown after adding a task.
-     *
-     * @param task the task that was added
-     * @param taskCount the number of tasks now in the list
-     */
-    private static void printTaskAdded(Task task, int taskCount) {
-        System.out.println(DIVIDER);
-        System.out.println("Got it. I've added this task:");
-        System.out.println("  " + task);
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
-        System.out.println(DIVIDER);
-    }
 }
