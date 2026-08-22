@@ -27,4 +27,11 @@ public class Event extends Task {
     public String toString() {
         return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
     }
+
+    /** Returns this event in a format used by persistent storage. */
+    @Override
+    public String toStorageString() {
+        return "E|" + (isDone ? "1" : "0") + "|" + encode(description)
+                + "|" + encode(from) + "|" + encode(to);
+    }
 }
