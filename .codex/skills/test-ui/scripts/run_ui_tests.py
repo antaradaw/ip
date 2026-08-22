@@ -14,6 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[4]
 PLAN_PATH = PROJECT_ROOT / "test/ui-test-plan.md"
 SESSION_PATH = PROJECT_ROOT / "test/ui-test-session.md"
 CLASS_DIRECTORY = PROJECT_ROOT / "test/.ui-test-classes"
+DATA_DIRECTORY = PROJECT_ROOT / "data"
 STARTUP_PROMPT = "What can I do for you?\n"
 
 
@@ -63,6 +64,7 @@ def compile_program() -> None:
 
 def run_case(case: TestCase) -> tuple[str, str]:
     """Run one case and return output for comparison and the full console output."""
+    shutil.rmtree(DATA_DIRECTORY, ignore_errors=True)
     result = subprocess.run(
         ["java", "-cp", str(CLASS_DIRECTORY), "Bambolino"],
         input=case.inputs + "\n",

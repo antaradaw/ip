@@ -24,4 +24,10 @@ public class Deadline extends Task {
     public String toString() {
         return "[D]" + super.toString() + " (by: " + by + ")";
     }
+
+    /** Returns this deadline in a format used by persistent storage. */
+    @Override
+    public String toStorageString() {
+        return "D|" + (isDone ? "1" : "0") + "|" + encode(description) + "|" + encode(by);
+    }
 }

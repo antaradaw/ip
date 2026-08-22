@@ -23,6 +23,20 @@ public class Task {
         isDone = false;
     }
 
+    /**
+     * Converts this task into one line of storage data.
+     *
+     * @return a storage line containing the task type, status, and fields
+     */
+    public String toStorageString() {
+        return "T|" + (isDone ? "1" : "0") + "|" + encode(description);
+    }
+
+    /** Encodes text safely for use as a pipe-separated storage field. */
+    protected String encode(String text) {
+        return java.util.Base64.getEncoder().encodeToString(
+                text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
 
     @Override
     public String toString() {
