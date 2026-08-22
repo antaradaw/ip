@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +30,7 @@ public class Storage {
         for (String line : Files.readAllLines(FILE_PATH, StandardCharsets.UTF_8)) {
             try {
                 tasks.add(parseTask(line));
-            } catch (IllegalArgumentException error) {
+            } catch (IllegalArgumentException | DateTimeException error) {
                 System.out.println("Warning: Ignored a corrupted task in " + FILE_PATH + ".");
             }
         }
@@ -65,7 +67,7 @@ public class Storage {
         if (fields[0].equals("T") && fields.length == 3) {
             task = new Todo(decode(fields[2]));
         } else if (fields[0].equals("D") && fields.length == 4) {
-            task = new Deadline(decode(fields[2]), decode(fields[3]));
+            task = new Deadline(decode(fields[2]), LocalDate.parse(decode(fields[3])));
         } else if (fields[0].equals("E") && fields.length == 5) {
             task = new Event(decode(fields[2]), decode(fields[3]), decode(fields[4]));
         } else {

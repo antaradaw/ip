@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -92,23 +94,32 @@ public class Bambolino {
             saveTasks(storage, tasks);
             printDeletedTask(deletedTask, tasks.size());
         } else {
-            throw new BambolinoException("I don't recognise that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.");
+            throw new BambolinoException("I don't recognise that command. Try todo, deadline, event, list, "
+                    + "mark, unmark, delete, or bye.");
         }
     }
 
-    /** Adds a deadline task after validating its description and deadline text. */
+    /** Adds a deadline task after validating its description and date. */
     private static void addDeadline(String arguments, List<Task> tasks, Storage storage)
             throws BambolinoException {
         int byIndex = arguments.startsWith("/by ") ? 0 : arguments.indexOf(" /by ");
         if (byIndex < 0) {
-            throw new BambolinoException("a deadline needs /by followed by its deadline. Try: deadline return book /by Sunday");
+            throw new BambolinoException("a deadline needs /by followed by a date. Try: deadline return book "
+                    + "/by 2019-10-15");
         }
         String description = arguments.substring(0, byIndex).trim();
         String by = arguments.substring(byIndex == 0 ? 4 : byIndex + 5).trim();
         if (description.isEmpty() || by.isEmpty()) {
-            throw new BambolinoException("a deadline needs both a description and text after /by.");
+            throw new BambolinoException("a deadline needs both a description and a date after /by.");
         }
-        tasks.add(new Deadline(description, by));
+        LocalDate dueDate;
+        try {
+            dueDate = LocalDate.parse(by);
+        } catch (DateTimeParseException error) {
+            throw new BambolinoException("deadline dates must use yyyy-mm-dd. Try: deadline return book "
+                    + "/by 2019-10-15");
+        }
+        tasks.add(new Deadline(description, dueDate));
         saveTasks(storage, tasks);
         printTaskAdded(tasks.getLast(), tasks.size());
     }
