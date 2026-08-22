@@ -1,3 +1,9 @@
+package bambolino.storage;
+
+import bambolino.task.Deadline;
+import bambolino.task.Event;
+import bambolino.task.Task;
+import bambolino.task.Todo;
 import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;

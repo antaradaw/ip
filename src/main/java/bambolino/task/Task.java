@@ -1,3 +1,5 @@
+package bambolino.task;
+
 /**
  * Represents one task in the task list.
  * A task has a description and can be marked as completed or incomplete.

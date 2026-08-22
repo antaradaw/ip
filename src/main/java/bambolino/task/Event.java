@@ -1,3 +1,5 @@
+package bambolino.task;
+
 /**
  * A task that has a starting and ending date or time.
  */

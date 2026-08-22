@@ -1,3 +1,5 @@
+package bambolino.exception;
+
 /**
  * Represents an error caused by an invalid Bambolino command.
  */
