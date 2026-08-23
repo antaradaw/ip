@@ -57,6 +57,24 @@ public class Ui {
         System.out.println(DIVIDER);
     }
 
+    /**
+     * Displays the tasks whose descriptions match a search keyword.
+     *
+     * @param tasks The matching tasks to display.
+     */
+    public void showMatchingTasks(List<Task> tasks) {
+        if (tasks.isEmpty()) {
+            System.out.println("No matching tasks found.");
+            return;
+        }
+        System.out.println(DIVIDER);
+        System.out.println("Here are the matching tasks in your list:");
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println((i + 1) + "." + tasks.get(i));
+        }
+        System.out.println(DIVIDER);
+    }
+
     /** Displays the confirmation for an added task. */
     public void showTaskAdded(Task task, int taskCount) {
         System.out.println(DIVIDER);

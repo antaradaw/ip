@@ -76,6 +76,11 @@ public class Bambolino {
             addDeadline(arguments, tasks, storage, ui);
         } else if (command.equals("event")) {
             addEvent(arguments, tasks, storage, ui);
+        } else if (command.equals("find")) {
+            if (arguments.isEmpty()) {
+                throw new BambolinoException("the find command needs a keyword. Try: find book");
+            }
+            ui.showMatchingTasks(findMatchingTasks(tasks, arguments));
         } else if (command.equals("mark")) {
             Task taskToMark = getTask(arguments, tasks, "mark");
             taskToMark.markAsDone();
@@ -92,9 +97,26 @@ public class Bambolino {
             saveTasks(storage, tasks);
             ui.showDeletedTask(deletedTask, tasks.size());
         } else {
-            throw new BambolinoException("I don't recognise that command. Try todo, deadline, event, list, "
+            throw new BambolinoException("I don't recognise that command. Try todo, deadline, event, find, list, "
                     + "mark, unmark, delete, or bye.");
         }
+    }
+
+    /**
+     * Finds tasks whose descriptions contain a keyword.
+     *
+     * @param tasks The tasks to search.
+     * @param keyword The text to search for.
+     * @return Tasks whose descriptions contain the keyword.
+     */
+    private static List<Task> findMatchingTasks(List<Task> tasks, String keyword) {
+        List<Task> matchingTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.containsKeyword(keyword)) {
+                matchingTasks.add(task);
+            }
+        }
+        return matchingTasks;
     }
 
     /** Adds a deadline task after validating its description and date. */

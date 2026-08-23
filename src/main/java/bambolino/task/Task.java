@@ -1,5 +1,7 @@
 package bambolino.task;
 
+import java.util.Locale;
+
 /**
  * Represents one task in the task list.
  * A task has a description and can be marked as completed or incomplete.
@@ -23,6 +25,16 @@ public class Task {
 
     public void unmarkAsDone() {
         isDone = false;
+    }
+
+    /**
+     * Returns whether this task description contains a keyword, ignoring case.
+     *
+     * @param keyword The text to search for.
+     * @return True if the description contains the keyword.
+     */
+    public boolean containsKeyword(String keyword) {
+        return description.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
     }
 
     /**
