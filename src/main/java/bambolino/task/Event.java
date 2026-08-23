@@ -10,9 +10,9 @@ public class Event extends Task {
     /**
      * Creates an incomplete event task.
      *
-     * @param description the event description
-     * @param from the starting date or time, stored as text
-     * @param to the ending date or time, stored as text
+     * @param description The event description.
+     * @param from The starting date or time, stored as text.
+     * @param to The ending date or time, stored as text.
      */
     public Event(String description, String from, String to) {
         super(description);
@@ -23,7 +23,7 @@ public class Event extends Task {
     /**
      * Returns this event task in the list-display format.
      *
-     * @return the task type, status icon, description, start, and end
+     * @return The task type, status icon, description, start, and end.
      */
     @Override
     public String toString() {

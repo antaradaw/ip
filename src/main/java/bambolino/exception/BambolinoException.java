@@ -7,7 +7,7 @@ public class BambolinoException extends Exception {
     /**
      * Creates an exception with a message that explains how to correct the command.
      *
-     * @param message the error explanation shown to the user
+     * @param message The error explanation shown to the user.
      */
     public BambolinoException(String message) {
         super(message);

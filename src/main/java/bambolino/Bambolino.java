@@ -1,5 +1,11 @@
 package bambolino;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+
 import bambolino.exception.BambolinoException;
 import bambolino.storage.Storage;
 import bambolino.task.Deadline;
@@ -7,11 +13,6 @@ import bambolino.task.Event;
 import bambolino.task.Task;
 import bambolino.task.Todo;
 import bambolino.ui.Ui;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A command-line task list application.
@@ -20,7 +21,7 @@ public class Bambolino {
     /**
      * Starts Bambolino and processes commands until the user says goodbye.
      *
-     * @param args command-line arguments, which are not used
+     * @param args Command-line arguments, which are not used.
      */
     public static void main(String[] args) {
         Ui ui = new Ui();
@@ -46,9 +47,9 @@ public class Bambolino {
     /**
      * Processes one command.
      *
-     * @param userInput the command entered by the user
-     * @param tasks the task list
-     * @throws BambolinoException if the command or its arguments are invalid
+     * @param userInput The command entered by the user.
+     * @param tasks The task list.
+     * @throws BambolinoException If the command or its arguments are invalid.
      */
     private static void processCommand(String userInput, List<Task> tasks, Storage storage, Ui ui)
             throws BambolinoException {

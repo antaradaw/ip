@@ -14,7 +14,7 @@ public class Task {
     /**
      * Creates an incomplete task with a description.
      *
-     * @param description the text describing the task
+     * @param description The text describing the task.
      */
     public Task(String description) {
         this.description = description;
@@ -24,7 +24,7 @@ public class Task {
     /**
      * Returns the symbol representing this task's completion status.
      *
-     * @return {@code X} when complete, or a space when incomplete
+     * @return {@code X} when complete, or a space when incomplete.
      */
     public String getStatusIcon() {
         return isDone ? "X" : " ";
@@ -43,7 +43,7 @@ public class Task {
     /**
      * Converts this task into one line of storage data.
      *
-     * @return a storage line containing the task type, status, and fields
+     * @return A storage line containing the task type, status, and fields.
      */
     public String toStorageString() {
         return "T|" + (isDone ? "1" : "0") + "|" + encode(description);
@@ -58,7 +58,7 @@ public class Task {
     /**
      * Returns this task in the list-display format.
      *
-     * @return the completion status icon and task description
+     * @return The completion status icon and task description.
      */
     @Override
     public String toString() {
