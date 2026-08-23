@@ -38,6 +38,10 @@ python3 .codex/skills/test-ui/scripts/run_ui_tests.py
 
 Stop and report the failure if the UI test run does not pass. The runner records the console input and output in `test/ui-test-session.md`.
 
+## JUnit testing
+
+Maintain JUnit coverage for approximately the highest-value 50% of candidate methods, prioritizing complex, core, and critical business logic. Update the relevant JUnit tests after each code change so this target remains satisfied.
+
 ## Git
 
 Use lightweight tags unless the user requests an annotated tag.
