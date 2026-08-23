@@ -1,8 +1,9 @@
 package bambolino.ui;
 
-import bambolino.task.Task;
 import java.util.List;
 import java.util.Scanner;
+
+import bambolino.task.Task;
 
 /**
  * Handles console input and output for Bambolino.

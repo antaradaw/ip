@@ -1,9 +1,5 @@
 package bambolino.storage;
 
-import bambolino.task.Deadline;
-import bambolino.task.Event;
-import bambolino.task.Task;
-import bambolino.task.Todo;
 import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -13,6 +9,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+
+import bambolino.task.Deadline;
+import bambolino.task.Event;
+import bambolino.task.Task;
+import bambolino.task.Todo;
 
 /**
  * Saves and restores Bambolino tasks using a file relative to the project directory.
@@ -24,8 +25,8 @@ public class Storage {
     /**
      * Loads every valid task in the data file.
      *
-     * @return the loaded tasks, or an empty list when no data file exists
-     * @throws IOException if the data file cannot be read
+     * @return The loaded tasks, or an empty list when no data file exists.
+     * @throws IOException If the data file cannot be read.
      */
     public List<Task> load() throws IOException {
         List<Task> tasks = new ArrayList<>();
@@ -46,8 +47,8 @@ public class Storage {
     /**
      * Writes the current task list, creating its data directory if needed.
      *
-     * @param tasks the tasks to save
-     * @throws IOException if the task data cannot be written
+     * @param tasks The tasks to save.
+     * @throws IOException If the task data cannot be written.
      */
     public void save(List<Task> tasks) throws IOException {
         Files.createDirectories(FILE_PATH.getParent());
