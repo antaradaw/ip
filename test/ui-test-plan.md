@@ -183,3 +183,84 @@ OK, I've marked this task as not done yet:
 ____________________________________________________________
 Bye. Hope to see you again soon!
 ```
+
+## Test: find matches task descriptions without case sensitivity
+
+**Aim:** Verify that find displays only tasks whose descriptions contain the keyword, regardless of letter case.
+
+**Inputs:**
+```text
+todo borrow book
+deadline return book /by 2019-10-15
+event team meeting /from Mon 2pm /to 4pm
+find BOOK
+bye
+```
+
+**Expected output:**
+```text
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] borrow book
+Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [D][ ] return book (by: Oct 15 2019)
+Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [E][ ] team meeting (from: Mon 2pm to: 4pm)
+Now you have 3 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Here are the matching tasks in your list:
+1.[T][ ] borrow book
+2.[D][ ] return book (by: Oct 15 2019)
+____________________________________________________________
+Bye. Hope to see you again soon!
+```
+
+## Test: find reports an empty result
+
+**Aim:** Verify that find reports when no task description contains the keyword.
+
+**Inputs:**
+```text
+todo borrow book
+find notebook
+bye
+```
+
+**Expected output:**
+```text
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] borrow book
+Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Here are the matching tasks in your list:
+No matching tasks found.
+____________________________________________________________
+Bye. Hope to see you again soon!
+```
+
+## Test: find requires a keyword
+
+**Aim:** Verify that find explains how to provide a missing keyword.
+
+**Inputs:**
+```text
+find
+bye
+```
+
+**Expected output:**
+```text
+____________________________________________________________
+Sorry, the find command needs a keyword. Try: find book
+____________________________________________________________
+Bye. Hope to see you again soon!
+```
