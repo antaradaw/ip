@@ -27,6 +27,44 @@ ____________________________________________________________
 Bye. Hope to see you again soon!
 ```
 
+## Test: find searches task descriptions
+
+**Aim:** Verify that find is case-insensitive, searches descriptions, and keeps the original task numbers.
+
+**Inputs:**
+```text
+todo read book
+deadline return book /by 2019-06-06
+event project meeting /from Aug 6th 2pm /to 4pm
+find BOOK
+bye
+```
+
+**Expected output:**
+```text
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] read book
+Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [D][ ] return book (by: Jun 06 2019)
+Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+Now you have 3 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Here are the matching tasks in your list:
+1.[T][ ] read book
+2.[D][ ] return book (by: Jun 06 2019)
+____________________________________________________________
+Bye. Hope to see you again soon!
+```
+
 ## Test: deadline parses and formats an ISO date
 
 **Aim:** Verify that a deadline stores an ISO date and displays it in the user-friendly format.

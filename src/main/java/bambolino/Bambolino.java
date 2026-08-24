@@ -66,6 +66,11 @@ public class Bambolino {
                 throw new BambolinoException("the list command does not take any extra words.");
             }
             ui.showTaskList(tasks);
+        } else if (command.equals("find")) {
+            if (arguments.isEmpty()) {
+                throw new BambolinoException("the find command needs a keyword. Try: find book");
+            }
+            ui.showMatchingTasks(tasks, arguments);
         } else if (command.equals("todo")) {
             if (arguments.isEmpty()) {
                 throw new BambolinoException("a todo needs a description. Try: todo borrow book");
@@ -94,7 +99,7 @@ public class Bambolino {
             ui.showDeletedTask(deletedTask, tasks.size());
         } else {
             throw new BambolinoException("I don't recognise that command. Try todo, deadline, event, list, "
-                    + "mark, unmark, delete, or bye.");
+                    + "find, mark, unmark, delete, or bye.");
         }
     }
 

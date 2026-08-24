@@ -58,6 +58,28 @@ public class Ui {
         System.out.println(DIVIDER);
     }
 
+    /** Displays tasks whose descriptions contain the supplied keyword.
+     *
+     * @param tasks The task list to search.
+     * @param keyword The case-insensitive keyword to search for.
+     */
+    public void showMatchingTasks(List<Task> tasks, String keyword) {
+        String lowerCaseKeyword = keyword.toLowerCase();
+        System.out.println(DIVIDER);
+        System.out.println("Here are the matching tasks in your list:");
+        boolean hasMatches = false;
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).getDescription().toLowerCase().contains(lowerCaseKeyword)) {
+                System.out.println((i + 1) + "." + tasks.get(i));
+                hasMatches = true;
+            }
+        }
+        if (!hasMatches) {
+            System.out.println("No matching tasks found.");
+        }
+        System.out.println(DIVIDER);
+    }
+
     /** Displays the confirmation for an added task. */
     public void showTaskAdded(Task task, int taskCount) {
         System.out.println(DIVIDER);
