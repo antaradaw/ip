@@ -3,14 +3,14 @@ package bambolino;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 import bambolino.exception.BambolinoException;
+import bambolino.parser.Parser;
 import bambolino.storage.Storage;
 import bambolino.task.Deadline;
 import bambolino.task.Event;
 import bambolino.task.Task;
+import bambolino.task.TaskList;
 import bambolino.task.Todo;
 import bambolino.ui.Ui;
 
@@ -27,7 +27,7 @@ public class Bambolino {
         Ui ui = new Ui();
         ui.showWelcome();
         Storage storage = new Storage();
-        List<Task> tasks = loadTasks(storage, ui);
+        TaskList tasks = loadTasks(storage, ui);
         while (true) {
             String userInput = ui.readCommand();
 
@@ -51,15 +51,15 @@ public class Bambolino {
      * @param tasks The task list.
      * @throws BambolinoException If the command or its arguments are invalid.
      */
-    private static void processCommand(String userInput, List<Task> tasks, Storage storage, Ui ui)
+    private static void processCommand(String userInput, TaskList tasks, Storage storage, Ui ui)
             throws BambolinoException {
         if (userInput.isEmpty()) {
             throw new BambolinoException("please enter a command.");
         }
 
-        String[] commandParts = userInput.split("\\s+", 2);
-        String command = commandParts[0].toLowerCase();
-        String arguments = commandParts.length == 2 ? commandParts[1].trim() : "";
+        Parser.Command parsedCommand = new Parser().parse(userInput);
+        String command = parsedCommand.name();
+        String arguments = parsedCommand.arguments();
 
         if (command.equals("list")) {
             if (!arguments.isEmpty()) {
@@ -104,7 +104,7 @@ public class Bambolino {
     }
 
     /** Adds a deadline task after validating its description and date. */
-    private static void addDeadline(String arguments, List<Task> tasks, Storage storage, Ui ui)
+    private static void addDeadline(String arguments, TaskList tasks, Storage storage, Ui ui)
             throws BambolinoException {
         int byIndex = arguments.startsWith("/by ") ? 0 : arguments.indexOf(" /by ");
         if (byIndex < 0) {
@@ -129,7 +129,7 @@ public class Bambolino {
     }
 
     /** Adds an event task after validating its description, start, and end text. */
-    private static void addEvent(String arguments, List<Task> tasks, Storage storage, Ui ui)
+    private static void addEvent(String arguments, TaskList tasks, Storage storage, Ui ui)
             throws BambolinoException {
         int fromIndex = arguments.indexOf(" /from ");
         int toIndex = arguments.indexOf(" /to ");
@@ -148,13 +148,13 @@ public class Bambolino {
     }
 
     /** Finds a valid task selected by a command. */
-    private static Task getTask(String arguments, List<Task> tasks, String command)
+    private static Task getTask(String arguments, TaskList tasks, String command)
             throws BambolinoException {
         return tasks.get(getTaskIndex(arguments, tasks, command));
     }
 
     /** Validates and converts a command's one-based task number to a list index. */
-    private static int getTaskIndex(String arguments, List<Task> tasks, String command)
+    private static int getTaskIndex(String arguments, TaskList tasks, String command)
             throws BambolinoException {
         if (arguments.isEmpty()) {
             throw new BambolinoException("the " + command + " command needs a task number. Try: " + command + " 1");
@@ -172,19 +172,19 @@ public class Bambolino {
     }
 
     /** Loads saved tasks while allowing the chatbot to start if storage fails. */
-    private static List<Task> loadTasks(Storage storage, Ui ui) {
+    private static TaskList loadTasks(Storage storage, Ui ui) {
         try {
-            return storage.load();
+            return new TaskList(storage.load());
         } catch (IOException error) {
             ui.showLoadingError();
-            return new ArrayList<>();
+            return new TaskList();
         }
     }
 
     /** Saves task changes and reports a storage problem without ending the chatbot. */
-    private static void saveTasks(Storage storage, List<Task> tasks) throws BambolinoException {
+    private static void saveTasks(Storage storage, TaskList tasks) throws BambolinoException {
         try {
-            storage.save(tasks);
+            storage.save(tasks.asList());
         } catch (IOException error) {
             throw new BambolinoException("I couldn't save your tasks. Please check the data folder.");
         }

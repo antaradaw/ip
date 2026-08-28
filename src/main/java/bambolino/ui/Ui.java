@@ -1,9 +1,9 @@
 package bambolino.ui;
 
-import java.util.List;
 import java.util.Scanner;
 
 import bambolino.task.Task;
+import bambolino.task.TaskList;
 
 /**
  * Handles console input and output for Bambolino.
@@ -45,7 +45,7 @@ public class Ui {
     }
 
     /** Displays the task list or an empty-list message. */
-    public void showTaskList(List<Task> tasks) {
+    public void showTaskList(TaskList tasks) {
         if (tasks.isEmpty()) {
             System.out.println("No tasks added yet.");
             return;
@@ -63,7 +63,7 @@ public class Ui {
      * @param tasks The task list to search.
      * @param keyword The case-insensitive keyword to search for.
      */
-    public void showMatchingTasks(List<Task> tasks, String keyword) {
+    public void showMatchingTasks(TaskList tasks, String keyword) {
         String lowerCaseKeyword = keyword.toLowerCase();
         System.out.println(DIVIDER);
         System.out.println("Here are the matching tasks in your list:");
