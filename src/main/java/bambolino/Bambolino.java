@@ -51,7 +51,7 @@ public class Bambolino {
      * @param tasks The task list.
      * @throws BambolinoException If the command or its arguments are invalid.
      */
-    private static void processCommand(String userInput, TaskList tasks, Storage storage, Ui ui)
+    public static void processCommand(String userInput, TaskList tasks, Storage storage, Ui ui)
             throws BambolinoException {
         if (userInput.isEmpty()) {
             throw new BambolinoException("please enter a command.");
@@ -172,7 +172,7 @@ public class Bambolino {
     }
 
     /** Loads saved tasks while allowing the chatbot to start if storage fails. */
-    private static TaskList loadTasks(Storage storage, Ui ui) {
+    public static TaskList loadTasks(Storage storage, Ui ui) {
         try {
             return new TaskList(storage.load());
         } catch (IOException error) {

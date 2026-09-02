@@ -1,6 +1,7 @@
 package bambolino.ui;
 
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 import bambolino.task.Task;
 import bambolino.task.TaskList;
@@ -21,16 +22,28 @@ public class Ui {
 
     /** The source of user commands. */
     private final Scanner scanner;
+    private final Consumer<String> output;
 
     /** Creates a user interface that reads commands from standard input. */
     public Ui() {
+        this(System.out::println);
+    }
+
+    /** Creates a user interface that sends each complete line to the supplied output. */
+    public Ui(Consumer<String> output) {
         scanner = new Scanner(System.in);
+        this.output = output;
+    }
+
+    /** Displays a line through this interface's output target. */
+    private void print(String message) {
+        output.accept(message);
     }
 
     /** Displays Bambolino's welcome message. */
     public void showWelcome() {
-        System.out.println(BANNER);
-        System.out.println("Hello! I'm Bambolino.\n"
+        print(BANNER);
+        print("Hello! I'm Bambolino.\n"
                 + "What can I do for you?");
     }
 
@@ -41,21 +54,21 @@ public class Ui {
 
     /** Displays Bambolino's goodbye message. */
     public void showGoodbye() {
-        System.out.println("Bye. Hope to see you again soon!");
+        print("Bye. Hope to see you again soon!");
     }
 
     /** Displays the task list or an empty-list message. */
     public void showTaskList(TaskList tasks) {
         if (tasks.isEmpty()) {
-            System.out.println("No tasks added yet.");
+            print("No tasks added yet.");
             return;
         }
-        System.out.println(DIVIDER);
-        System.out.println("Here are the tasks in your list:");
+        print(DIVIDER);
+        print("Here are the tasks in your list:");
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + "." + tasks.get(i));
+            print((i + 1) + "." + tasks.get(i));
         }
-        System.out.println(DIVIDER);
+        print(DIVIDER);
     }
 
     /** Displays tasks whose descriptions contain the supplied keyword.
@@ -65,57 +78,57 @@ public class Ui {
      */
     public void showMatchingTasks(TaskList tasks, String keyword) {
         String lowerCaseKeyword = keyword.toLowerCase();
-        System.out.println(DIVIDER);
-        System.out.println("Here are the matching tasks in your list:");
+        print(DIVIDER);
+        print("Here are the matching tasks in your list:");
         boolean hasMatches = false;
         for (int i = 0; i < tasks.size(); i++) {
             if (tasks.get(i).getDescription().toLowerCase().contains(lowerCaseKeyword)) {
-                System.out.println((i + 1) + "." + tasks.get(i));
+                print((i + 1) + "." + tasks.get(i));
                 hasMatches = true;
             }
         }
         if (!hasMatches) {
-            System.out.println("No matching tasks found.");
+            print("No matching tasks found.");
         }
-        System.out.println(DIVIDER);
+        print(DIVIDER);
     }
 
     /** Displays the confirmation for an added task. */
     public void showTaskAdded(Task task, int taskCount) {
-        System.out.println(DIVIDER);
-        System.out.println("Got it. I've added this task:");
-        System.out.println("  " + task);
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
-        System.out.println(DIVIDER);
+        print(DIVIDER);
+        print("Got it. I've added this task:");
+        print("  " + task);
+        print("Now you have " + taskCount + " tasks in the list.");
+        print(DIVIDER);
     }
 
     /** Displays the confirmation for a marked or unmarked task. */
     public void showMarkedTask(Task task, boolean isDone) {
-        System.out.println(DIVIDER);
-        System.out.println(isDone ? "Nice! I've marked this task as done:"
+        print(DIVIDER);
+        print(isDone ? "Nice! I've marked this task as done:"
                 : "OK, I've marked this task as not done yet:");
-        System.out.println("  " + task);
-        System.out.println(DIVIDER);
+        print("  " + task);
+        print(DIVIDER);
     }
 
     /** Displays the confirmation for a deleted task. */
     public void showDeletedTask(Task task, int taskCount) {
-        System.out.println(DIVIDER);
-        System.out.println("Noted. I've removed this task:");
-        System.out.println("  " + task);
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
-        System.out.println(DIVIDER);
+        print(DIVIDER);
+        print("Noted. I've removed this task:");
+        print("  " + task);
+        print("Now you have " + taskCount + " tasks in the list.");
+        print(DIVIDER);
     }
 
     /** Displays a user-friendly command error. */
     public void showError(String message) {
-        System.out.println(DIVIDER);
-        System.out.println("Sorry, " + message);
-        System.out.println(DIVIDER);
+        print(DIVIDER);
+        print("Sorry, " + message);
+        print(DIVIDER);
     }
 
     /** Displays the warning shown when saved tasks cannot be loaded. */
     public void showLoadingError() {
-        System.out.println("Warning: I couldn't load your saved tasks. Starting with an empty list.");
+        print("Warning: I couldn't load your saved tasks. Starting with an empty list.");
     }
 }
