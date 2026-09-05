@@ -1,0 +1,35 @@
+.root {
+    -fx-background-color: #eaf7f0;
+    -fx-font-family: "Avenir Next", "Arial";
+}
+.header {
+    -fx-padding: 0 24px 0 0;
+    -fx-background-color: transparent;
+}
+.header-content { -fx-padding: 20px 24px 16px 24px; -fx-background-color: linear-gradient(to right, #155b43, #2b8b64); }
+.title { -fx-text-fill: white; -fx-font-size: 25px; -fx-font-weight: bold; }
+.subtitle { -fx-text-fill: #c9f1d9; -fx-font-size: 13px; }
+.conversation { -fx-padding: 20px 8px; -fx-background-color: #eaf7f0; }
+.conversation-scroll, .conversation-scroll .viewport { -fx-background-color: #eaf7f0; }
+.conversation-scroll { -fx-border-color: transparent; }
+.user-message, .bambolino-message {
+    -fx-padding: 12px 16px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #18352b;
+    -fx-background-radius: 18px 18px 4px 18px;
+    -fx-background-color: #c9f2d8;
+}
+.bambolino-message {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #b9dfc8;
+    -fx-border-radius: 18px 18px 18px 4px;
+}
+.user-avatar, .bambolino-avatar {
+    -fx-background-radius: 30px; -fx-border-radius: 30px;
+    -fx-border-color: white; -fx-border-width: 3px;
+}
+.composer { -fx-padding: 12px; -fx-background-color: white; -fx-background-radius: 18px; -fx-border-color: #c2e4ce; -fx-border-radius: 18px; }
+.command-input { -fx-background-color: #f1faf4; -fx-background-radius: 20px; -fx-padding: 11px 16px; -fx-font-size: 14px; }
+.send-button { -fx-background-color: #17734e; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20px; -fx-padding: 11px 22px; }
+.send-button:hover { -fx-background-color: #0f5a3c; }
+.scroll-bar .thumb { -fx-background-color: #81bf9a; -fx-background-radius: 1em; }

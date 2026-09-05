@@ -53,11 +53,16 @@ public class Bambolino {
      */
     public static void processCommand(String userInput, TaskList tasks, Storage storage, Ui ui)
             throws BambolinoException {
+        assert userInput != null : "user input must be provided";
+        assert tasks != null : "task list must be provided";
+        assert storage != null : "storage must be provided";
+        assert ui != null : "UI must be provided";
         if (userInput.isEmpty()) {
             throw new BambolinoException("please enter a command.");
         }
 
         Parser.Command parsedCommand = new Parser().parse(userInput);
+        assert parsedCommand != null : "parser must return a command";
         String command = parsedCommand.name();
         String arguments = parsedCommand.arguments();
 
