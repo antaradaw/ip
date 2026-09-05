@@ -28,7 +28,10 @@ public class TaskList {
     public Task get(int index) { return tasks.get(index); }
 
     /** Returns the most recently added task. */
-    public Task getLast() { return tasks.getLast(); }
+    public Task getLast() {
+        assert !tasks.isEmpty() : "cannot get the last task from an empty list";
+        return tasks.getLast();
+    }
 
     /** Removes and returns the task at the supplied zero-based index. */
     public Task remove(int index) { return tasks.remove(index); }

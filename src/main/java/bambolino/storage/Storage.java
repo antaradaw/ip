@@ -80,6 +80,7 @@ public class Storage {
         } else {
             throw new IllegalArgumentException("Invalid task type");
         }
+        assert task != null : "a valid storage record must create a task";
         if (isDone) {
             task.markAsDone();
         }
