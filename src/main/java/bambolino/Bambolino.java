@@ -61,46 +61,62 @@ public class Bambolino {
         String command = parsedCommand.name();
         String arguments = parsedCommand.arguments();
 
-        if (command.equals("list")) {
-            if (!arguments.isEmpty()) {
-                throw new BambolinoException("the list command does not take any extra words.");
-            }
-            ui.showTaskList(tasks);
-        } else if (command.equals("find")) {
-            if (arguments.isEmpty()) {
-                throw new BambolinoException("the find command needs a keyword. Try: find book");
-            }
-            ui.showMatchingTasks(tasks, arguments);
-        } else if (command.equals("todo")) {
-            if (arguments.isEmpty()) {
-                throw new BambolinoException("a todo needs a description. Try: todo borrow book");
-            }
-            tasks.add(new Todo(arguments));
-            saveTasks(storage, tasks);
-            ui.showTaskAdded(tasks.getLast(), tasks.size());
-        } else if (command.equals("deadline")) {
-            addDeadline(arguments, tasks, storage, ui);
-        } else if (command.equals("event")) {
-            addEvent(arguments, tasks, storage, ui);
-        } else if (command.equals("mark")) {
-            Task taskToMark = getTask(arguments, tasks, "mark");
-            taskToMark.markAsDone();
-            saveTasks(storage, tasks);
-            ui.showMarkedTask(taskToMark, true);
-        } else if (command.equals("unmark")) {
-            Task taskToUnmark = getTask(arguments, tasks, "unmark");
-            taskToUnmark.unmarkAsDone();
-            saveTasks(storage, tasks);
-            ui.showMarkedTask(taskToUnmark, false);
-        } else if (command.equals("delete")) {
-            int taskIndex = getTaskIndex(arguments, tasks, "delete");
-            Task deletedTask = tasks.remove(taskIndex);
-            saveTasks(storage, tasks);
-            ui.showDeletedTask(deletedTask, tasks.size());
-        } else {
-            throw new BambolinoException("I don't recognise that command. Try todo, deadline, event, list, "
-                    + "find, mark, unmark, delete, or bye.");
+        switch (command) {
+        case "list" -> showTaskList(arguments, tasks, ui);
+        case "find" -> findTasks(arguments, tasks, ui);
+        case "todo" -> addTodo(arguments, tasks, storage, ui);
+        case "deadline" -> addDeadline(arguments, tasks, storage, ui);
+        case "event" -> addEvent(arguments, tasks, storage, ui);
+        case "mark" -> updateTaskStatus(arguments, tasks, storage, ui, true);
+        case "unmark" -> updateTaskStatus(arguments, tasks, storage, ui, false);
+        case "delete" -> deleteTask(arguments, tasks, storage, ui);
+        default -> throw new BambolinoException("I don't recognise that command. Try todo, deadline, event, list, "
+                + "find, mark, unmark, delete, or bye.");
         }
+    }
+
+    private static void showTaskList(String arguments, TaskList tasks, Ui ui) throws BambolinoException {
+        if (!arguments.isEmpty()) {
+            throw new BambolinoException("the list command does not take any extra words.");
+        }
+        ui.showTaskList(tasks);
+    }
+
+    private static void findTasks(String arguments, TaskList tasks, Ui ui) throws BambolinoException {
+        if (arguments.isEmpty()) {
+            throw new BambolinoException("the find command needs a keyword. Try: find book");
+        }
+        ui.showMatchingTasks(tasks, arguments);
+    }
+
+    private static void addTodo(String arguments, TaskList tasks, Storage storage, Ui ui)
+            throws BambolinoException {
+        if (arguments.isEmpty()) {
+            throw new BambolinoException("a todo needs a description. Try: todo borrow book");
+        }
+        tasks.add(new Todo(arguments));
+        saveTasks(storage, tasks);
+        ui.showTaskAdded(tasks.getLast(), tasks.size());
+    }
+
+    private static void updateTaskStatus(String arguments, TaskList tasks, Storage storage, Ui ui, boolean isDone)
+            throws BambolinoException {
+        Task task = getTask(arguments, tasks, isDone ? "mark" : "unmark");
+        if (isDone) {
+            task.markAsDone();
+        } else {
+            task.unmarkAsDone();
+        }
+        saveTasks(storage, tasks);
+        ui.showMarkedTask(task, isDone);
+    }
+
+    private static void deleteTask(String arguments, TaskList tasks, Storage storage, Ui ui)
+            throws BambolinoException {
+        int taskIndex = getTaskIndex(arguments, tasks, "delete");
+        Task deletedTask = tasks.remove(taskIndex);
+        saveTasks(storage, tasks);
+        ui.showDeletedTask(deletedTask, tasks.size());
     }
 
     /** Adds a deadline task after validating its description and date. */
