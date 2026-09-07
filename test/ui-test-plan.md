@@ -2,6 +2,31 @@
 
 Expected output in each test starts after Bambolino's startup greeting. The generated session record contains the commands sent to the program and the output it produced.
 
+## Test: command aliases behave like full command names
+
+**Aim:** Verify that short, case-insensitive aliases execute the same actions as the corresponding full commands.
+
+**Inputs:**
+```text
+T borrow book
+L
+Q
+```
+
+**Expected output:**
+```text
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] borrow book
+Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Here are the tasks in your list:
+1.[T][ ] borrow book
+____________________________________________________________
+Bye. Hope to see you again soon!
+```
+
 ## Test: todo tasks display in the list
 
 **Aim:** Verify that a to-do task is added and listed with its task type and incomplete status icon.
