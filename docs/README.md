@@ -8,6 +8,24 @@
 
 ## Adding deadlines
 
+## Friendlier command syntax
+
+Bambolino accepts these case-insensitive command aliases:
+
+| Full command | Alias |
+| --- | --- |
+| `todo` | `t` |
+| `deadline` | `d` |
+| `event` | `e` |
+| `list` | `l` |
+| `find` | `f` |
+| `delete` | `del` |
+| `mark` | `m` |
+| `unmark` | `um` |
+| `bye` | `q` |
+
+Aliases accept the same arguments and produce the same output as their full commands.
+
 // Describe the action and its outcome.
 
 // Give examples of usage
