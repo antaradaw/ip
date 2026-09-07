@@ -31,7 +31,7 @@ public class Bambolino {
         while (true) {
             String userInput = ui.readCommand();
 
-            if (userInput.equalsIgnoreCase("bye")) {
+            if (new Parser().parse(userInput).name().equals("bye")) {
                 ui.showGoodbye();
                 break;
             }
