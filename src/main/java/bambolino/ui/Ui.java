@@ -47,9 +47,9 @@ public class Ui {
                 + "What can I do for you?");
     }
 
-    /** Reads and trims the next command entered by the user. */
+    /** Reads the next command, treating end-of-input as a request to exit. */
     public String readCommand() {
-        return scanner.nextLine().trim();
+        return scanner.hasNextLine() ? scanner.nextLine().trim() : "bye";
     }
 
     /** Displays Bambolino's goodbye message. */

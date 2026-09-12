@@ -302,3 +302,128 @@ These visual checks supplement the console regression cases above.
   wrap within the conversation; the input and Send button remain usable without horizontal scrolling.
 - Add enough tasks to require scrolling, then use `list`: the full response can be read by scrolling.
 - Empty or whitespace-only input disables Send. Sending a valid command clears and refocuses the input.
+
+## Test: repeated and missing parameters do not add tasks
+
+**Aim:** Verify invalid commands report errors without changing tasks or ending the session.
+
+**Inputs:**
+```text
+deadline book /by 2026-09-13 /by 2026-09-14
+deadline book /by
+event meeting /from 2pm /from 3pm /to 4pm
+event meeting /from 2pm /to 3pm /to 4pm
+event /from 2pm /to 4pm
+event meeting /to 4pm /from 2pm
+list
+bye
+```
+
+**Expected output:**
+```text
+____________________________________________________________
+Sorry, use /by exactly once, separated by spaces.
+____________________________________________________________
+____________________________________________________________
+Sorry, a deadline needs both a description and a date after /by.
+____________________________________________________________
+____________________________________________________________
+Sorry, use /from exactly once, separated by spaces.
+____________________________________________________________
+____________________________________________________________
+Sorry, use /to exactly once, separated by spaces.
+____________________________________________________________
+____________________________________________________________
+Sorry, an event needs a description, a start after /from, and an end after /to.
+____________________________________________________________
+____________________________________________________________
+Sorry, use /to exactly once, separated by spaces.
+____________________________________________________________
+No tasks added yet.
+Bye. Hope to see you again soon!
+```
+
+## Test: invalid exit and task numbers allow recovery
+
+**Aim:** Verify invalid commands report errors without changing tasks or ending the session.
+
+**Inputs:**
+```text
+bye now
+q now
+mark 99999999999999999999
+delete 0
+unmark -1
+list
+bye
+```
+
+**Expected output:**
+```text
+____________________________________________________________
+Sorry, the bye command does not take any extra words.
+____________________________________________________________
+____________________________________________________________
+Sorry, the bye command does not take any extra words.
+____________________________________________________________
+____________________________________________________________
+Sorry, the task number for mark must be a whole number.
+____________________________________________________________
+____________________________________________________________
+Sorry, task 0 is not in your list yet.
+____________________________________________________________
+____________________________________________________________
+Sorry, task -1 is not in your list yet.
+____________________________________________________________
+No tasks added yet.
+Bye. Hope to see you again soon!
+```
+
+## Test: flexible parameter whitespace
+
+**Aim:** Verify leading and trailing whitespace and tabs around parameters are accepted.
+
+**Inputs:**
+```text
+  deadline   book	/by	2026-09-13  
+  event meeting	/from	2pm	/to	4pm  
+bye
+```
+
+**Expected output:**
+```text
+____________________________________________________________
+Got it. I've added this task:
+  [D][ ] book (by: Sep 13 2026)
+Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [E][ ] meeting (from: 2pm to: 4pm)
+Now you have 2 tasks in the list.
+____________________________________________________________
+Bye. Hope to see you again soon!
+```
+
+## Test: end of input exits cleanly
+
+**Aim:** Verify the console exits without an exception when its input ends without bye.
+
+**Inputs:**
+```text
+list
+```
+
+**Expected output:**
+```text
+No tasks added yet.
+Bye. Hope to see you again soon!
+```
+
+Additional manual GUI checks for A-MoreErrorHandling:
+
+- Enter `q`: Bambolino shows the same goodbye response as `bye`.
+- Enter `bye now`: an error card appears and the command remains available for correction.
+- Enter an event with repeated `/from` or `/to`: an error card appears; `list` confirms no task was added.
+
+The whitespace test intentionally includes trailing spaces and literal tabs in its input.

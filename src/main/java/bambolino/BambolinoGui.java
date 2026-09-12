@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bambolino.exception.BambolinoException;
+import bambolino.parser.Parser;
 import bambolino.storage.Storage;
 import bambolino.task.TaskList;
 import bambolino.ui.Ui;
@@ -101,7 +102,8 @@ public class BambolinoGui extends Application {
         });
         boolean isError = false;
         try {
-            if (command.equalsIgnoreCase("bye")) {
+            Parser.Command parsedCommand = new Parser().parse(command);
+            if (parsedCommand.name().equals("bye") && parsedCommand.arguments().isEmpty()) {
                 ui.showGoodbye();
                 addMessage(command, true, false);
                 addMessage(String.join("\n", lines), false, isError);

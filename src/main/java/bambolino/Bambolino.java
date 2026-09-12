@@ -31,7 +31,8 @@ public class Bambolino {
         while (true) {
             String userInput = ui.readCommand();
 
-            if (new Parser().parse(userInput).name().equals("bye")) {
+            Parser.Command parsedCommand = new Parser().parse(userInput);
+            if (parsedCommand.name().equals("bye") && parsedCommand.arguments().isEmpty()) {
                 ui.showGoodbye();
                 break;
             }
@@ -57,7 +58,7 @@ public class Bambolino {
         assert tasks != null : "task list must be provided";
         assert storage != null : "storage must be provided";
         assert ui != null : "UI must be provided";
-        if (userInput.isEmpty()) {
+        if (userInput.isBlank()) {
             throw new BambolinoException("please enter a command.");
         }
 
@@ -67,6 +68,7 @@ public class Bambolino {
         String arguments = parsedCommand.arguments();
 
         switch (command) {
+        case "bye" -> throw new BambolinoException("the bye command does not take any extra words.");
         case "list" -> showTaskList(arguments, tasks, ui);
         case "find" -> findTasks(arguments, tasks, ui);
         case "todo" -> addTodo(arguments, tasks, storage, ui);
@@ -127,13 +129,9 @@ public class Bambolino {
     /** Adds a deadline task after validating its description and date. */
     private static void addDeadline(String arguments, TaskList tasks, Storage storage, Ui ui)
             throws BambolinoException {
-        int byIndex = arguments.startsWith("/by ") ? 0 : arguments.indexOf(" /by ");
-        if (byIndex < 0) {
-            throw new BambolinoException("a deadline needs /by followed by a date. Try: deadline return book "
-                    + "/by 2019-10-15");
-        }
-        String description = arguments.substring(0, byIndex).trim();
-        String by = arguments.substring(byIndex == 0 ? 4 : byIndex + 5).trim();
+        String[] parts = splitParameter(arguments, "by");
+        String description = parts[0].trim();
+        String by = parts[1].trim();
         if (description.isEmpty() || by.isEmpty()) {
             throw new BambolinoException("a deadline needs both a description and a date after /by.");
         }
@@ -152,20 +150,29 @@ public class Bambolino {
     /** Adds an event task after validating its description, start, and end text. */
     private static void addEvent(String arguments, TaskList tasks, Storage storage, Ui ui)
             throws BambolinoException {
-        int fromIndex = arguments.indexOf(" /from ");
-        int toIndex = arguments.indexOf(" /to ");
-        if (fromIndex < 0 || toIndex < 0 || fromIndex >= toIndex) {
-            throw new BambolinoException("an event needs /from and /to. Try: event meeting /from Mon 2pm /to 4pm");
+        String[] fromParts = splitParameter(arguments, "from");
+        String[] toParts = splitParameter(fromParts[1], "to");
+        if (fromParts[0].matches("(?s).*?(?<!\\S)/to(?!\\S).*")) {
+            throw new BambolinoException("an event needs /from before /to, with each parameter used once.");
         }
-        String description = arguments.substring(0, fromIndex).trim();
-        String from = arguments.substring(fromIndex + 7, toIndex).trim();
-        String to = arguments.substring(toIndex + 5).trim();
+        String description = fromParts[0].trim();
+        String from = toParts[0].trim();
+        String to = toParts[1].trim();
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
             throw new BambolinoException("an event needs a description, a start after /from, and an end after /to.");
         }
         tasks.add(new Event(description, from, to));
         saveTasks(storage, tasks);
         ui.showTaskAdded(tasks.getLast(), tasks.size());
+    }
+
+    /** Splits a required parameter, allowing whitespace while rejecting missing or repeated markers. */
+    private static String[] splitParameter(String arguments, String parameter) throws BambolinoException {
+        String[] parts = arguments.split("(?<!\\S)/" + parameter + "(?!\\S)", -1);
+        if (parts.length != 2) {
+            throw new BambolinoException("use /" + parameter + " exactly once, separated by spaces.");
+        }
+        return parts;
     }
 
     /** Finds a valid task selected by a command. */
