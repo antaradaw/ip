@@ -20,7 +20,21 @@ import bambolino.task.Todo;
  */
 public class Storage {
     /** The location used for task data. */
-    private static final Path FILE_PATH = Path.of("data", "bambolino.txt");
+    private final Path filePath;
+
+    /** Creates storage in the application data directory. */
+    public Storage() {
+        this(Path.of("data", "bambolino.txt"));
+    }
+
+    /**
+     * Creates storage at a supplied location, allowing isolated tests and alternate data directories.
+     *
+     * @param filePath The file in which tasks are stored.
+     */
+    public Storage(Path filePath) {
+        this.filePath = filePath;
+    }
 
     /**
      * Loads every valid task in the data file.
@@ -30,15 +44,15 @@ public class Storage {
      */
     public List<Task> load() throws IOException {
         List<Task> tasks = new ArrayList<>();
-        if (!Files.exists(FILE_PATH)) {
+        if (!Files.exists(filePath)) {
             return tasks;
         }
 
-        for (String line : Files.readAllLines(FILE_PATH, StandardCharsets.UTF_8)) {
+        for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
             try {
                 tasks.add(parseTask(line));
             } catch (IllegalArgumentException | DateTimeException error) {
-                System.out.println("Warning: Ignored a corrupted task in " + FILE_PATH + ".");
+                System.out.println("Warning: Ignored a corrupted task in " + filePath + ".");
             }
         }
         return tasks;
@@ -51,12 +65,12 @@ public class Storage {
      * @throws IOException If the task data cannot be written.
      */
     public void save(List<Task> tasks) throws IOException {
-        Files.createDirectories(FILE_PATH.getParent());
+        Files.createDirectories(filePath.getParent());
         List<String> lines = new ArrayList<>();
         for (Task task : tasks) {
             lines.add(task.toStorageString());
         }
-        Files.write(FILE_PATH, lines, StandardCharsets.UTF_8);
+        Files.write(filePath, lines, StandardCharsets.UTF_8);
     }
 
     /** Converts one stored line into a task. */

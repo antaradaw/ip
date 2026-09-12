@@ -427,3 +427,19 @@ Additional manual GUI checks for A-MoreErrorHandling:
 - Enter an event with repeated `/from` or `/to`: an error card appears; `list` confirms no task was added.
 
 The whitespace test intentionally includes trailing spaces and literal tabs in its input.
+
+## Automated JUnit coverage for A-MoreTesting
+
+Run `./gradlew test` with Java 25. The tests in `src/test/java/bambolino` cover:
+
+- Parser aliases, whitespace, unknown commands, and command normalization under Turkish locale.
+- Task display, completion, keyword matching, list ordering, and immutable list snapshots.
+- Storage round trips for every task type, Unicode and delimiters, corrupt records, missing files,
+  and file locations that cannot be read or written as task files. Storage tests use temporary folders.
+- Command lifecycles, persistence after mutations, search numbering, malformed inputs that leave
+  tasks unchanged, and loading/saving error messages.
+- Console greetings, errors, empty lists, trimmed input, and end-of-input handling.
+
+The existing console cases remain applicable because the default storage location and command
+behavior have not changed. GUI appearance remains covered by the manual checks above.
+Cross-OS and screen-resolution checks have not been performed by the JUnit suite.
