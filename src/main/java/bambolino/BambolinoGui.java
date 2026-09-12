@@ -8,6 +8,7 @@ import bambolino.storage.Storage;
 import bambolino.task.TaskList;
 import bambolino.ui.Ui;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,11 +18,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Circle;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 /** Provides a chat-style JavaFX interface for Bambolino. */
@@ -42,6 +43,7 @@ public class BambolinoGui extends Application {
         conversation.getStyleClass().add("conversation");
         ScrollPane scrollPane = new ScrollPane(conversation);
         scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.vvalueProperty().bind(conversation.heightProperty());
         scrollPane.getStyleClass().add("conversation-scroll");
 
@@ -50,6 +52,8 @@ public class BambolinoGui extends Application {
         input.getStyleClass().add("command-input");
         Button send = new Button("Send");
         send.getStyleClass().add("send-button");
+        send.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> input.getText().isBlank(), input.textProperty()));
         send.setOnAction(event -> submit());
         input.setOnAction(event -> submit());
 
@@ -58,10 +62,10 @@ public class BambolinoGui extends Application {
         composer.getStyleClass().add("composer");
         HBox.setHgrow(input, Priority.ALWAYS);
 
-        ImageView headerAvatar = createAvatar("/bambolino.jpeg", 52);
+        ImageView headerAvatar = createAvatar("/bambolino.jpeg", 40);
         Label title = new Label("Bambolino");
         title.getStyleClass().add("title");
-        Label subtitle = new Label("Your friendly task companion  •  Online");
+        Label subtitle = new Label("Your friendly task companion");
         subtitle.getStyleClass().add("subtitle");
         VBox header = new VBox(2, title, subtitle);
         header.getStyleClass().add("header");
@@ -73,12 +77,15 @@ public class BambolinoGui extends Application {
         BorderPane.setMargin(scrollPane, new Insets(0, 16, 8, 16));
         BorderPane.setMargin(composer, new Insets(8, 16, 16, 16));
         tasks = Bambolino.loadTasks(storage, new Ui(message -> { }));
-        addMessage("Hello! I'm Bambolino.\nWhat can I do for you?", false);
+        addMessage("Hello! I'm Bambolino.\nWhat can I do for you?", false, false);
+        stage.setMinWidth(380);
+        stage.setMinHeight(360);
         stage.setTitle("Bambolino");
         Scene scene = new Scene(root, 680, 520);
         scene.getStylesheets().add(getClass().getResource("/bambolino.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
+        input.requestFocus();
     }
 
     private void submit() {
@@ -87,42 +94,57 @@ public class BambolinoGui extends Application {
             return;
         }
         List<String> lines = new ArrayList<>();
-        Ui ui = new Ui(lines::add);
+        Ui ui = new Ui(line -> {
+            if (!line.matches("_+")) {
+                lines.add(line);
+            }
+        });
+        boolean isError = false;
         try {
             if (command.equalsIgnoreCase("bye")) {
                 ui.showGoodbye();
-                addMessage(command, true);
-                addMessage(String.join("\n", lines), false);
+                addMessage(command, true, false);
+                addMessage(String.join("\n", lines), false, isError);
                 input.clear();
                 return;
             }
             Bambolino.processCommand(command, tasks, storage, ui);
         } catch (BambolinoException error) {
+            isError = true;
             ui.showError(error.getMessage());
         }
-        addMessage(command, true);
-        addMessage(String.join("\n", lines), false);
-        input.clear();
+        addMessage(command, true, false);
+        addMessage(String.join("\n", lines), false, isError);
+        if (isError) {
+            input.selectAll();
+        } else {
+            input.clear();
+        }
+        input.requestFocus();
     }
 
-    /** Adds one user or Bambolino message to the conversation. */
-    private void addMessage(String text, boolean isUser) {
-        javafx.scene.Node avatar;
-        if (isUser) {
-            avatar = createAvatar("/user.jpeg", 60);
-        } else {
-            avatar = createAvatar("/bambolino.jpeg", 60);
-        }
+    /** Adds a compact command bubble or a full-width response card with explicit error feedback. */
+    private void addMessage(String text, boolean isUser, boolean isError) {
         Label message = new Label(text);
         message.setWrapText(true);
-        message.setMaxWidth(500);
-        message.getStyleClass().add(isUser ? "user-message" : "bambolino-message");
-        HBox row = new HBox(10, avatar, message);
-        row.setAlignment(Pos.TOP_LEFT);
-        if (isUser) {
-            row.setAlignment(Pos.TOP_RIGHT);
-            row.getChildren().setAll(message, avatar);
+        message.setMinWidth(0);
+        message.setMaxWidth(Double.MAX_VALUE);
+        message.getStyleClass().add("message-text");
+        Label caption = new Label(isUser ? "YOU" : isError ? "COMMAND ERROR" : "BAMBOLINO");
+        caption.getStyleClass().add("message-caption");
+        VBox card = new VBox(5, caption, message);
+        card.getStyleClass().add(isUser ? "user-message" : "bambolino-message");
+        if (isError) {
+            card.getStyleClass().add("error-message");
         }
+        card.setMinWidth(0);
+        // Leave a small inset for commands; give long task lists the full available width.
+        card.maxWidthProperty().bind(conversation.widthProperty().subtract(16).multiply(isUser ? 0.85 : 1));
+        if (!isUser) {
+            HBox.setHgrow(card, Priority.ALWAYS);
+        }
+        HBox row = new HBox(card);
+        row.setAlignment(isUser ? Pos.TOP_RIGHT : Pos.TOP_LEFT);
         conversation.getChildren().add(row);
     }
 

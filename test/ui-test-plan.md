@@ -289,3 +289,16 @@ Sorry, the find command needs a keyword. Try: find book
 ____________________________________________________________
 Bye. Hope to see you again soon!
 ```
+
+## Manual GUI checks for A-BetterGui
+
+These visual checks supplement the console regression cases above.
+
+- Submit `todo read book` with Enter and `list` with Send: commands appear on the right;
+  responses appear in wider white cards without console separator lines or repeated avatars.
+- Submit `todo`: the reply has a COMMAND ERROR label and contrasting red styling. The input
+  remains selected for correction. Replace it with `todo read notes`: the reply uses normal styling.
+- Resize from 680 × 520 to the minimum 380 × 360 and then enlarge: long commands and replies
+  wrap within the conversation; the input and Send button remain usable without horizontal scrolling.
+- Add enough tasks to require scrolling, then use `list`: the full response can be read by scrolling.
+- Empty or whitespace-only input disables Send. Sending a valid command clears and refocuses the input.
