@@ -62,7 +62,7 @@ jar {
 }
 
 shadowJar {
-    archiveFileName = 'duke.jar'
+    archiveFileName = 'bambolino.jar'
 }
 
 run {
