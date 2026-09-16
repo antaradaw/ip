@@ -466,3 +466,12 @@ instance loads the repaired file and saves normally. A missing file still permit
 Manual GUI check using a temporary working directory: start with a corrupt record and a valid task,
 confirm the protection warning appears, then try `delete 1` and `todo new`. Both must display an
 error, and `list` must retain the original task. Close, repair the file, and restart to resume editing.
+
+## Cross-platform release smoke tests
+
+The `Release smoke tests` GitHub Actions workflow runs the published v0.2 JAR on Windows
+and Linux with plain Temurin Java 25. The artifact checksum must match the macOS-tested JAR.
+Each runner starts in an empty temporary directory, enters commands through the GUI, checks
+persisted task changes and invalid-date preservation, and restarts to verify loading.
+Screenshots and Java logs are retained as workflow artifacts. This is automated smoke coverage;
+it does not replace a person's assessment of usability on those operating systems.
