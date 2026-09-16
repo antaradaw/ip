@@ -1,14 +1,16 @@
 package bambolino.storage;
 
 import java.io.IOException;
-import java.time.DateTimeException;
-import java.time.LocalDate;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.NoSuchFileException;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.function.Consumer;
 
 import bambolino.task.Deadline;
 import bambolino.task.Event;
@@ -21,6 +23,9 @@ import bambolino.task.Todo;
 public class Storage {
     /** The location used for task data. */
     private final Path filePath;
+
+    /** Prevents overwriting data that could not be fully loaded during this session. */
+    private boolean isSaveBlocked;
 
     /** Creates storage in the application data directory. */
     public Storage() {
@@ -43,19 +48,53 @@ public class Storage {
      * @throws IOException If the data file cannot be read.
      */
     public List<Task> load() throws IOException {
+        return load(System.out::println);
+    }
+
+    /**
+     * Loads valid tasks and sends corrupt-record warnings to the active interface.
+     *
+     * @param warningOutput The destination for loading warnings.
+     * @return The loaded tasks, or an empty list when no data file exists.
+     * @throws IOException If the data file cannot be read.
+     */
+    public List<Task> load(Consumer<String> warningOutput) throws IOException {
         List<Task> tasks = new ArrayList<>();
-        if (!Files.exists(filePath)) {
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+        } catch (NoSuchFileException error) {
             return tasks;
+        } catch (IOException error) {
+            isSaveBlocked = true;
+            throw error;
         }
 
-        for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
+        for (String line : lines) {
             try {
                 tasks.add(parseTask(line));
             } catch (IllegalArgumentException | DateTimeException error) {
-                System.out.println("Warning: Ignored a corrupted task in " + filePath + ".");
+                isSaveBlocked = true;
+                warningOutput.accept("Warning: Ignored a corrupted task in " + filePath + ".");
             }
         }
+        if (isSaveBlocked) {
+            warningOutput.accept("Warning: Saving is disabled to protect your existing data. "
+                    + "Back up and repair the data file, then restart Bambolino.");
+        }
         return tasks;
+    }
+
+    /**
+     * Rejects changes when loading failed, protecting the original data until restart.
+     *
+     * @throws IOException If saving is disabled after a loading problem.
+     */
+    public void checkWritable() throws IOException {
+        if (isSaveBlocked) {
+            throw new IOException("Saving is disabled to protect your existing data. "
+                    + "Back up and repair the data file, then restart Bambolino.");
+        }
     }
 
     /**
@@ -65,7 +104,9 @@ public class Storage {
      * @throws IOException If the task data cannot be written.
      */
     public void save(List<Task> tasks) throws IOException {
-        Files.createDirectories(filePath.getParent());
+        checkWritable();
+        Path parent = filePath.toAbsolutePath().getParent();
+        Files.createDirectories(parent);
         List<String> lines = new ArrayList<>();
         for (Task task : tasks) {
             lines.add(task.toStorageString());

@@ -296,7 +296,7 @@ These visual checks supplement the console regression cases above.
 
 - Submit `todo read book` with Enter and `list` with Send: commands appear on the right;
   responses appear in wider white cards without console separator lines or repeated avatars.
-- Submit `todo`: the reply has a COMMAND ERROR label and contrasting red styling. The input
+- Submit `todo`: the reply has an ERROR / WARNING label and contrasting red styling. The input
   remains selected for correction. Replace it with `todo read notes`: the reply uses normal styling.
 - Resize from 680 × 520 to the minimum 380 × 360 and then enlarge: long commands and replies
   wrap within the conversation; the input and Send button remain usable without horizontal scrolling.
@@ -443,3 +443,26 @@ Run `./gradlew test` with Java 25. The tests in `src/test/java/bambolino` cover:
 The existing console cases remain applicable because the default storage location and command
 behavior have not changed. GUI appearance remains covered by the manual checks above.
 Cross-OS and screen-resolution checks have not been performed by the JUnit suite.
+
+## Manual startup and naming checks
+
+- Check that the window title, header, greeting, and response captions say Bambolino.
+- Launch from a temporary working directory without a data file: the app starts with an empty list;
+  adding a task creates `data/bambolino.txt`.
+- With the app closed, use a temporary data file containing `bad` and `T|0|Ym9vaw==` on separate lines.
+  Launch the GUI: a visible warning follows the greeting, and `list` displays the retained book task.
+- In a temporary working directory, create a directory at `data/bambolino.txt` and launch the GUI:
+  a visible loading warning appears and the interface remains usable.
+
+The corrupt-record warning route is also covered by `BambolinoTest`.
+
+## Loading-failure data protection
+
+JUnit regression tests verify unreadable UTF-8 data and partially corrupt files remain byte-for-byte
+unchanged after attempted saves. All six mutating commands are rejected after an incomplete load;
+list and find still work. Repairing the file does not unlock the existing session; a fresh Storage
+instance loads the repaired file and saves normally. A missing file still permits the first save.
+
+Manual GUI check using a temporary working directory: start with a corrupt record and a valid task,
+confirm the protection warning appears, then try `delete 1` and `todo new`. Both must display an
+error, and `list` must retain the original task. Close, repair the file, and restart to resume editing.

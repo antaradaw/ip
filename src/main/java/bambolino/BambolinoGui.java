@@ -77,8 +77,8 @@ public class BambolinoGui extends Application {
         BorderPane root = new BorderPane(scrollPane, headerContent, null, composer, null);
         BorderPane.setMargin(scrollPane, new Insets(0, 16, 8, 16));
         BorderPane.setMargin(composer, new Insets(8, 16, 16, 16));
-        tasks = Bambolino.loadTasks(storage, new Ui(message -> { }));
         addMessage("Hello! I'm Bambolino.\nWhat can I do for you?", false, false);
+        tasks = Bambolino.loadTasks(storage, new Ui(message -> addMessage(message, false, true)));
         stage.setMinWidth(380);
         stage.setMinHeight(360);
         stage.setTitle("Bambolino");
@@ -132,7 +132,7 @@ public class BambolinoGui extends Application {
         message.setMinWidth(0);
         message.setMaxWidth(Double.MAX_VALUE);
         message.getStyleClass().add("message-text");
-        Label caption = new Label(isUser ? "YOU" : isError ? "COMMAND ERROR" : "BAMBOLINO");
+        Label caption = new Label(isUser ? "YOU" : isError ? "ERROR / WARNING" : "BAMBOLINO");
         caption.getStyleClass().add("message-caption");
         VBox card = new VBox(5, caption, message);
         card.getStyleClass().add(isUser ? "user-message" : "bambolino-message");

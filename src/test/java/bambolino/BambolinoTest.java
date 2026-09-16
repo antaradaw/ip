@@ -1,6 +1,7 @@
 package bambolino;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +113,34 @@ class BambolinoTest {
     void loadTasks_readFailure_warnsAndStartsEmpty() {
         TaskList loaded = Bambolino.loadTasks(new Storage(directory), ui);
         assertTrue(loaded.isEmpty());
-        assertEquals(List.of("Warning: I couldn't load your saved tasks. Starting with an empty list."), output);
+        assertTrue(output.getFirst().contains("Saving is disabled to protect your existing data."));
+    }
+
+    @Test
+    void loadTasks_corruptRecord_warnsThroughActiveUiAndKeepsValidTasks() throws IOException {
+        Files.write(directory.resolve("tasks.txt"), List.of("bad", "T|0|Ym9vaw=="));
+        TaskList loaded = Bambolino.loadTasks(storage, ui);
+        assertEquals("book", loaded.get(0).getDescription());
+        assertEquals(2, output.size());
+        assertTrue(output.getFirst().startsWith("Warning: Ignored a corrupted task"));
+    }
+
+    @Test
+    void processCommand_afterIncompleteLoad_rejectsAllMutations() throws Exception {
+        Path file = directory.resolve("tasks.txt");
+        String original = "bad\nT|0|Ym9vaw==\n";
+        Files.writeString(file, original);
+        tasks = Bambolino.loadTasks(storage, ui);
+        for (String command : List.of("todo new", "deadline book /by 2026-10-15",
+                "event meeting /from 2pm /to 3pm", "mark 1", "unmark 1", "delete 1")) {
+            BambolinoException error = assertThrows(BambolinoException.class, () -> run(command));
+            assertTrue(error.getMessage().contains("Saving is disabled"));
+            assertEquals("[T][ ] book", tasks.get(0).toString());
+            assertEquals(1, tasks.size());
+            assertEquals(original, Files.readString(file));
+        }
+        run("list");
+        run("find book");
     }
 
     @Test

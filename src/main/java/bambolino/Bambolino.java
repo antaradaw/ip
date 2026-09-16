@@ -68,6 +68,17 @@ public class Bambolino {
         String arguments = parsedCommand.arguments();
 
         switch (command) {
+        case "todo", "deadline", "event", "mark", "unmark", "delete" -> {
+            try {
+                storage.checkWritable();
+            } catch (IOException error) {
+                throw new BambolinoException(error.getMessage());
+            }
+        }
+        default -> { }
+        }
+
+        switch (command) {
         case "bye" -> throw new BambolinoException("the bye command does not take any extra words.");
         case "list" -> showTaskList(arguments, tasks, ui);
         case "find" -> findTasks(arguments, tasks, ui);
@@ -202,7 +213,7 @@ public class Bambolino {
     /** Loads saved tasks while allowing the chatbot to start if storage fails. */
     public static TaskList loadTasks(Storage storage, Ui ui) {
         try {
-            return new TaskList(storage.load());
+            return new TaskList(storage.load(ui::showWarning));
         } catch (IOException error) {
             ui.showLoadingError();
             return new TaskList();

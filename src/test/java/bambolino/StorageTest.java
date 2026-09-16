@@ -14,6 +14,7 @@ import bambolino.task.Todo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -52,6 +53,45 @@ class StorageTest {
                 "E|0|YQ==|Yg==|Yw==|extra", "E|0|YQ==|Yg==|Yw=="));
         assertEquals(List.of("[T][ ] book", "[E][ ] a (from: b to: c)"),
                 new Storage(file).load().stream().map(Task::toString).toList());
+    }
+
+    @Test
+    void save_afterReadFailure_preservesOriginalBytesEvenAfterRepair() throws IOException {
+        Path file = directory.resolve("tasks.txt");
+        byte[] invalidUtf8 = {(byte) 0xc3, (byte) 0x28};
+        Files.write(file, invalidUtf8);
+        Storage storage = new Storage(file);
+        assertThrows(IOException.class, storage::load);
+        assertThrows(IOException.class, () -> storage.save(List.of(new Todo("replacement"))));
+        assertArrayEquals(invalidUtf8, Files.readAllBytes(file));
+        String repaired = "T|0|Ym9vaw==\n";
+        Files.writeString(file, repaired);
+        storage.load();
+        assertThrows(IOException.class, () -> storage.save(List.of()));
+        assertEquals(repaired, Files.readString(file));
+        Storage restarted = new Storage(file);
+        assertEquals("book", restarted.load().getFirst().getDescription());
+        restarted.save(List.of(new Todo("recovered")));
+        assertEquals("recovered", restarted.load().getFirst().getDescription());
+    }
+
+    @Test
+    void save_afterCorruptRecord_preservesWholeFile() throws IOException {
+        Path file = directory.resolve("tasks.txt");
+        String original = "bad\nT|0|Ym9vaw==\n";
+        Files.writeString(file, original);
+        Storage storage = new Storage(file);
+        assertEquals(1, storage.load().size());
+        assertThrows(IOException.class, () -> storage.save(List.of()));
+        assertEquals(original, Files.readString(file));
+    }
+
+    @Test
+    void save_afterMissingFile_createsDataNormally() throws IOException {
+        Storage storage = new Storage(directory.resolve("new/tasks.txt"));
+        assertTrue(storage.load().isEmpty());
+        storage.save(List.of(new Todo("first task")));
+        assertEquals("first task", storage.load().getFirst().getDescription());
     }
 
     @Test

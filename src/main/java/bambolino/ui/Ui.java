@@ -127,8 +127,19 @@ public class Ui {
         print(DIVIDER);
     }
 
+    /**
+     * Displays a storage warning through the active interface.
+     *
+     * @param message The warning to display.
+     */
+    public void showWarning(String message) {
+        print(message);
+    }
+
     /** Displays the warning shown when saved tasks cannot be loaded. */
     public void showLoadingError() {
-        print("Warning: I couldn't load your saved tasks. Starting with an empty list.");
+        print("Warning: I couldn't load your saved tasks. Starting with an empty list. "
+                + "Saving is disabled to protect your existing data. "
+                + "Back up and repair the data file, then restart Bambolino.");
     }
 }
