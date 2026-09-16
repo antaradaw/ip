@@ -22,10 +22,14 @@ public class TaskList {
     }
 
     /** Adds a task to the end of the list. */
-    public void add(Task task) { tasks.add(task); }
+    public void add(Task task) {
+        tasks.add(task);
+    }
 
     /** Returns the task at the supplied zero-based index. */
-    public Task get(int index) { return tasks.get(index); }
+    public Task get(int index) {
+        return tasks.get(index);
+    }
 
     /** Returns the most recently added task. */
     public Task getLast() {
@@ -34,14 +38,22 @@ public class TaskList {
     }
 
     /** Removes and returns the task at the supplied zero-based index. */
-    public Task remove(int index) { return tasks.remove(index); }
+    public Task remove(int index) {
+        return tasks.remove(index);
+    }
 
     /** Returns the number of tasks in the list. */
-    public int size() { return tasks.size(); }
+    public int size() {
+        return tasks.size();
+    }
 
     /** Returns whether the list contains no tasks. */
-    public boolean isEmpty() { return tasks.isEmpty(); }
+    public boolean isEmpty() {
+        return tasks.isEmpty();
+    }
 
-    /** Returns a read-only view for persistence and presentation. */
-    public List<Task> asList() { return List.copyOf(tasks); }
+    /** Returns a read-only snapshot for persistence and presentation. */
+    public List<Task> asList() {
+        return List.copyOf(tasks);
+    }
 }
