@@ -26,7 +26,7 @@ jobs:
           python-version: '3.12'
       - name: Install Linux display dependencies
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y xvfb openbox scrot gnome-screenshot python3-tk libgtk-3-0
+        run: sudo apt-get update && sudo apt-get install -y xvfb openbox xdotool scrot gnome-screenshot python3-tk libgtk-3-0
       - run: python -m pip install pyautogui==0.9.54 pillow
       - name: Smoke test on Linux
         if: runner.os == 'Linux'

@@ -60,6 +60,14 @@ def main():
                 try:
                     time.sleep(8)
                     assert process.poll() is None, 'GUI failed to start'
+                    if os.name != 'nt':
+                        window = subprocess.check_output(
+                            ['xdotool', 'search', '--sync', '--onlyvisible', '--name', '^Bambolino$'],
+                            timeout=20, text=True).splitlines()[-1]
+                        subprocess.run(['xdotool', 'windowactivate', '--sync', window],
+                                       check=True, timeout=20)
+                        subprocess.run(['xdotool', 'windowfocus', '--sync', window],
+                                       check=True, timeout=20)
                     if attempt == 0:
                         command('todo smoke task')
                         wait_for(lambda: data.exists() and f'T|0|{encoded}' in data.read_text(),
@@ -81,6 +89,9 @@ def main():
                         command('delete 1')
                         wait_for(lambda: data.read_text() == '', 'Delete failed', process)
                     print(f'PASS: GUI session {attempt + 1}', flush=True)
+                except Exception:
+                    pyautogui.screenshot().save(RESULTS / f'failure-{attempt}.png')
+                    raise
                 finally:
                     if process.poll() is None:
                         process.terminate()
